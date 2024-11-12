@@ -4,6 +4,7 @@
 
 
 /**
+ * 
  * @global string   MAIL_SERVER
  * @global string   MAIL_USER
  * @global string   MAIL_PASS
