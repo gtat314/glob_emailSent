@@ -113,6 +113,7 @@ class glob_emailSent extends glob_dbaseTablePrimary {
         $this->mail->SMTPSecure = MAIL_SMTP_SECURE;
         $this->mail->Port = MAIL_PORT;
         $this->mail->setFrom( MAIL_USER );
+        $this->mail->addReplyTo( MAIL_USER );
         $this->mail->isHTML( true );
         $this->mail->addCustomHeader( 'Accept-Language', 'el-GR, en-US' );
         $this->mail->addCustomHeader( 'Content-Language', 'el-GR' );
