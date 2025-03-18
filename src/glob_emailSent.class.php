@@ -292,10 +292,24 @@ class glob_emailSent extends glob_dbaseTablePrimary {
      */
     public function addAddressMultiple( $emails ) {
 
+        $addresses = [];
+
         for ( $i = 0 ; $i < count( $emails ) ; $i++ ) {
 
             $this->mail->addAddress( $emails[ $i ] );
+
+            $addresses[] = $emails[ $i ];
     
+        }
+
+        if ( count( $addresses ) === 1 ) {
+
+            $this->address = $addresses[ 0 ];
+
+        } else {
+
+            $this->address = json_encode( $addresses );
+
         }
 
         return $this;
