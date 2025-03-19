@@ -13,6 +13,7 @@
  * @global int      IMAP_PORT
  * @global string   IMAP_SENT
  * @global int      IMAP_APPEND_STATUS
+ * @global int      GLOBEMAIL_SMTPDEBUG
  */
 class glob_emailSent extends glob_dbaseTablePrimary {
 
@@ -98,12 +99,12 @@ class glob_emailSent extends glob_dbaseTablePrimary {
      * @global string MAIL_PASS
      * @global string MAIL_SMTP_SECURE
      * @global int MAIL_PORT
+     * @global int GLOBEMAIL_SMTPDEBUG
      * @return glob_emailSent
      */
     public function __construct() {
 
         $this->mail = new PHPMailer\PHPMailer\PHPMailer( true );
-        $this->mail->SMTPDebug = 3;
         $this->mail->isSMTP();
         $this->mail->CharSet = 'UTF-8';
         $this->mail->Host = MAIL_SERVER;
@@ -118,6 +119,16 @@ class glob_emailSent extends glob_dbaseTablePrimary {
         $this->mail->addCustomHeader( 'Accept-Language', 'el-GR, en-US' );
         $this->mail->addCustomHeader( 'Content-Language', 'el-GR' );
         $this->mail->XMailer = ' ';
+
+        if ( defined( 'GLOBEMAIL_SMTPDEBUG' ) ) {
+
+            $this->mail->SMTPDebug = GLOBEMAIL_SMTPDEBUG;
+
+        } else {
+
+            $this->mail->SMTPDebug = 3;
+
+        }
         
         $this->mail->Debugoutput = function( $str, $level ) {
 
