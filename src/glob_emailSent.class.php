@@ -14,6 +14,7 @@
  * @global string   IMAP_SENT
  * @global int      IMAP_APPEND_STATUS
  * @global int      GLOBEMAIL_SMTPDEBUG
+ * @global int      NUM_DAYS_DELETE_OBSOLETE_EMAILS
  */
 class glob_emailSent extends glob_dbaseTablePrimary {
 
@@ -77,6 +78,24 @@ class glob_emailSent extends glob_dbaseTablePrimary {
 
 
 
+
+    /**
+     * @global PDO $pdo
+     * @global int NUM_DAYS_DELETE_OBSOLETE_EMAILS
+     * @static
+     * @return void
+     */
+    public static function db_deleteObsolete() {
+
+        global $pdo;
+
+        $query = 'DELETE FROM `' . __CLASS__ . '` WHERE timeCreated < DATE_SUB( NOW(), INTERVAL ' . NUM_DAYS_DELETE_OBSOLETE_EMAILS . ' DAY);';
+
+        $stmt = $pdo->prepare( $query );
+
+        $stmt->execute();
+
+    }
 
     /**
      * @static
@@ -154,6 +173,16 @@ class glob_emailSent extends glob_dbaseTablePrimary {
      * @return void
      */
     public function log() {
+
+        if ( defined( 'NUM_DAYS_DELETE_OBSOLETE_EMAILS' ) ) {
+
+            if ( mt_rand( 1, 100 ) === 1 ) {
+
+                self::db_deleteObsolete();
+
+            }
+
+        }
 
         $environment = [
             'SERVER' => $_SERVER,
