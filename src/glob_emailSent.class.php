@@ -108,6 +108,66 @@ class glob_emailSent extends glob_dbaseTablePrimary {
 
     }
 
+    /**
+     * @global int IMAP_APPEND_STATUS
+     * @global string MAIL_SERVER
+     * @global int IMAP_PORT
+     * @global string MAIL_USER
+     * @global string MAIL_PASS
+     * @return array|null
+     */
+    public static function get_quota_root() {
+
+        if ( defined( 'IMAP_APPEND_STATUS' ) === false || IMAP_APPEND_STATUS !== 1 ) {
+
+            return null;
+
+        }
+
+        $imapPath = "{" . MAIL_SERVER . ":" . IMAP_PORT . "/imap/ssl/novalidate-cert}";
+
+        $imapStream = imap_open( $imapPath, MAIL_USER, MAIL_PASS );
+
+        if ( $imapStream === false ) {
+
+            return null;
+
+        }
+
+        $quotaInfo = imap_get_quotaroot( $imapStream, "INBOX" );
+
+        $toReturn = [];
+
+        if ( $quotaInfo && isset( $quotaInfo[ 'STORAGE' ] ) ) {
+
+            if ( isset( $quotaInfo[ 'STORAGE' ][ 'usage' ] ) ) {
+
+                $toReturn[] = $quotaInfo[ 'STORAGE' ][ 'usage' ];
+
+            }
+
+            if ( isset( $quotaInfo[ 'STORAGE' ][ 'limit' ] ) ) {
+
+                $toReturn[] = $quotaInfo[ 'STORAGE' ][ 'limit' ];
+
+            }
+
+        }
+
+        imap_close( $imapStream );
+
+        if ( count( $toReturn ) === 2 ) {
+
+            return $toReturn;
+
+        } else {
+
+            return null;
+
+        }
+
+    }
+
 
 
     
