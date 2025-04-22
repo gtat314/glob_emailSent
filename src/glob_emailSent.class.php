@@ -116,6 +116,108 @@ class glob_emailSent extends glob_dbaseTablePrimary {
      * @global string MAIL_PASS
      * @return array|null
      */
+    public static function get_mailbox_sizes() {
+
+        if ( defined( 'IMAP_APPEND_STATUS' ) === false || IMAP_APPEND_STATUS !== 1 ) {
+
+            return null;
+
+        }
+
+        $hostname = "{" . MAIL_SERVER . ":" . IMAP_PORT . "/imap/ssl/novalidate-cert}";
+
+        $imap = imap_open( $hostname, MAIL_USER, MAIL_PASS );
+
+        if ( $imap === false ) {
+
+            return null;
+
+        }
+
+        $mailboxes = imap_list( $imap, $hostname, '*' );
+
+        if ( $mailboxes === false ) {
+
+            imap_close( $imap );
+
+            return null;
+
+        }
+
+        $data = [];
+
+        foreach ( $mailboxes as $mailbox ) {
+
+            if ( imap_reopen( $imap, $mailbox ) === false ) {
+
+                continue;
+
+            }
+
+            $numMessages = imap_num_msg( $imap );
+
+            if ( $numMessages === false ) {
+
+                continue;
+
+            }
+
+            $folderSize = 0;
+
+            for ( $i = 1; $i <= $numMessages; $i++ ) {
+
+                $header = imap_fetchheader( $imap, $i );
+
+                if ( $header === false ) {
+
+                    continue;
+
+                }
+
+                $body = imap_body( $imap, $i );
+
+                if ( $body === false ) {
+
+                    continue;
+
+                }
+
+                $size = strlen( $header ) + strlen( $body );
+
+                $folderSize += $size;
+
+            }
+
+            $data[] = [
+                'mailbox' => str_replace( $hostname, '', $mailbox ),
+                'num' => $numMessages,
+                'size' => $folderSize
+            ];
+
+        }
+
+        imap_close( $imap );
+
+        if ( count( $data ) > 0 ) {
+
+            return $data;
+
+        } else {
+
+            return null;
+
+        }
+
+    }
+
+    /**
+     * @global int IMAP_APPEND_STATUS
+     * @global string MAIL_SERVER
+     * @global int IMAP_PORT
+     * @global string MAIL_USER
+     * @global string MAIL_PASS
+     * @return array|null
+     */
     public static function get_quota_root() {
 
         if ( defined( 'IMAP_APPEND_STATUS' ) === false || IMAP_APPEND_STATUS !== 1 ) {
